@@ -1,62 +1,106 @@
 import express from 'express';
-import mongoose,{model,Schema} from 'mongoose';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
+
+import Product from './src/models/product.js';
 
 const app = express();
+
 app.use(express.json());
 
 const PORT = 5000;
 
-const MONGODB_URL = 'mongodb+srv://achaltelmasre:Achal98@achal.ehzxt9b.mongodb.net/e-commerce';
+const connectMongoDB = async () =>{
+    const conn = await mongoose.connect(process.env.MONGODB_URI)
+     if (conn) {
+        console.log('MongoDB connected successfully');   
+     }
+ };
+ connectMongoDB();
 
-const connectedMongoDB = async () => {
-   const conn =  await mongoose.connect(MONGODB_URL)
-    if (conn) {
-        console.log('mongoDB connected successfully.');
-    }
-};
-connectedMongoDB();
+ //find all data
+ app.get('/products', async (req, res) =>{
 
-app.get('/products', async (req,res) =>{
-    const products = await product.find()
+    const products = await Product.find()
+
     res.json({
-        success:true,
-        data:products,
-        message: "Successfully get details of product"
+       success: true,
+       data: products,
+       massage: 'successfully fetched all students',
     })
 });
+ 
+//Post request
+app.post('/product', async (req, res) =>{
+    const {name, description, price, productimg, brand} = req.body;
 
-app.post('/product', async (req,res) =>{
-    const {name, description,price,productimg,brand} = req.body;
+    if (!name) {
+      return res.json({
+            success:false,
+            message: 'Name is required',
+        })
+    }
 
-    const product = new product ({
-        name:name,
-        description:description,
-        price:price,
-        productimg:productimg,
-        brand:brand
-    })
+    if (!description) {
+        return res.json({
+              success:false,
+              message: 'Description is required',
+          })
+      }
 
-    const saveproduct = await product.save();
+      if (!price) {
+        return res.json({
+              success:false,
+              message: 'Price is required',
+          })
+      }
+
+      if (!productimg) {
+        return res.json({
+              success:false,
+              message: 'Productimg is required',
+          })
+      }
+
+      if (!brand) {
+        return res.json({
+              success:false,
+              message: 'Brand is required',
+          })
+      }
+
+   const prod = new Product({
+     name:name,
+     description:description,
+     price: price,
+     productimg:productimg,
+     brand:brand,
+   });
+
+   const savedProduct = await prod.save();
+
     res.json({
-        success:true,
-        data:saveproduct,
+        success: true,
+        data:savedProduct,
         message: 'Successfully added new product',
     })
 });
-
-app.get('/product', async (req,res) =>{
+ 
+//Find Get request
+app.get('/product', async (req, res) => {
     const {name} = req.query;
-
-    const product = await product.findbox({name:name})
+    
+    const product = await Product.findOne({name:name});
+ 
     res.json({
-        success: true,
-        data:product,
-        massage: "Get details of products"
-
+     success:true,
+     data: product,
+     message: 'Successfully fetched  product',
     })
-})
+ });
 
-app.listen(PORT, () => {
-    console.log(`Server is runing on port ${PORT}.`);
+
+app.listen(PORT, () =>{
+    console.log(` Server running on port ${PORT}`);
 });
-
