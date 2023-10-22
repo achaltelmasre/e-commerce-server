@@ -31,7 +31,7 @@ const connectMongoDB = async () =>{
     })
 });
  
-//Post request
+//Add Post request
 app.post('/product', async (req, res) =>{
     const {name, description, price, productimg, brand} = req.body;
 
@@ -99,7 +99,6 @@ app.get('/product', async (req, res) => {
      message: 'Successfully fetched  product',
     })
  });
-
 
 app.listen(PORT, () =>{
     console.log(` Server running on port ${PORT}`);
